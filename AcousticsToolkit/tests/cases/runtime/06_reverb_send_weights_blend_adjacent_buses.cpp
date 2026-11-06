@@ -8,12 +8,12 @@
 // 이 함수는 정적(static)이라 Init 없이도 호출된다.
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "pa/RuntimeAcoustics.h"
 
-int main(int argc, char** argv)
+int Test_runtime_06_reverb_send_weights_blend_adjacent_buses()
 {
-    PA_BEGIN("runtime.06_reverb_send_weights_blend_adjacent_buses", "리버브 가중치: 인접 버스 혼합",
-             "버스 T60 {0.5,1,2,4}s 에서 목표 1.5s 이면 1s/2s 버스만 섞고 나머지는 0 인지 확인.");
+    PA_BEGIN("runtime.06_reverb_send_weights_blend_adjacent_buses");
 
     // [1] 입력: 사용 가능한 리버브 버스의 T60 (오름차순이어야 한다) / 목표 T60
     PA_STEP("목표 T60 1.5s 에 대한 가중치 계산");

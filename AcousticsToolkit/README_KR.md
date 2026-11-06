@@ -108,7 +108,7 @@
 ```
 AcousticsToolkit/
 ├─ run_tests.bat                  빌드 + 실행 도우미 (인자 없음 = 대화형 테스트 메뉴)
-├─ CMakeLists.txt                 빌드 정의 (라이브러리 2개 + 테스트 프로그램 47개 + 메뉴, VS 솔루션 폴더/헤더 표시)
+├─ CMakeLists.txt                 빌드 정의 (라이브러리 2개 + 테스트 실행 파일 pa_tests 1개, VS 솔루션 폴더/헤더 표시)
 ├─ include/pa/  +  src/           ★ 래퍼 라이브러리 (실제 제품 코드)
 │   DynamicLibrary                LoadLibrary RAII (DLL 없을 때 SKIP 가능하게)
 │   HrtfEngine                    HrtfDsp.dll 래퍼 (엔진 RAII, 소스 관리, Process)
@@ -119,45 +119,55 @@ AcousticsToolkit/
 │   CoordinateConversion          Unreal ↔ Triton ↔ HRTF 좌표/단위 변환 (플러그인 MathUtils.h 와 동일 공식)
 │   AcousticsBridge               TritonAcousticParameters → HrtfAcousticParameters 변환 (참조 구현)
 └─ tests/
-   ├─ common/                     테스트 프로그램들이 공통으로 쓰는 작은 헤더
+   ├─ main.cpp                    ★ 진입점(브레이크포인트 시작점): 테스트 목록(vector) + switch 호출 + 메뉴/인자 처리
+   ├─ TestList.h                  모든 Test_xxx() 함수 선언
+   ├─ Suites.h / Suites.cpp       suite 별 제목/설명/필요 파일 (메뉴 표시용)
+   ├─ common/
    │   Check.h                    PA_BEGIN / PA_STEP / PA_LOG / PA_CHECK / PA_SKIP / PA_PASS 매크로
    │   Helpers.h                  재질 생성, 사인파, 채널 에너지 같은 잔손질 함수 (판정 로직 없음)
-   │   CrashTrace.h               네이티브 크래시를 모듈+RVA 로 출력 (모든 테스트에 자동 적용)
+   │   CrashTrace.h               네이티브 크래시를 모듈+RVA 로 출력
    │   TestPaths.h.in             DLL/EXE 경로 (CMake 가 TestPaths.h 로 생성)
-   ├─ cases/                      ★ 테스트 1개 = .cpp 1개 = 실행 파일 1개 (각자 main() 이 있다)
-   │   unit/          01 ~ 19     바이너리 불필요: ABI, 좌표 변환, 브릿지, 절차적 메시, 명령줄
-   │   hrtf/          01 ~ 09     실제 HrtfDsp.dll
-   │   preprocessor/  01 ~ 10     실제 Triton.Preprocessor.dll
-   │   runtime/       01 ~ 08     Triton.Runtime.lib (정적 링크)
-   │   e2e/           01          메시 → 베이크 → ACE → 쿼리 → HRTF 전체 파이프라인
-   └─ launcher/                   pa_menu.exe: 테스트 프로그램을 찾아 목록/선택/실행 (테스트 로직 없음)
-       main.cpp                   인자 해석
-       Launcher.h/.cpp            탐색, --describe 로 설명 수집, 프로세스 실행, 메뉴 루프
-       Suites.cpp                 suite 별 제목/설명/필요 파일
+   └─ cases/                      ★ 테스트 1개 = .cpp 1개 = 함수 1개
+       unit/          01 ~ 19     바이너리 불필요: ABI, 좌표 변환, 브릿지, 절차적 메시, 명령줄
+       hrtf/          01 ~ 09     실제 HrtfDsp.dll
+       preprocessor/  01 ~ 10     실제 Triton.Preprocessor.dll
+       runtime/       01 ~ 08     Triton.Runtime.lib (정적 링크)
+       e2e/           01          메시 → 베이크 → ACE → 쿼리 → HRTF 전체 파이프라인
 ```
+
+### 실행 흐름 (디버거로 따라가는 순서)
+
+```
+main()                         tests/main.cpp      인자 해석 / 메뉴
+ └─ RunSelected(...)           tests/main.cpp      선택된 테스트마다 번호·id·제목·검증 내용 헤더 출력
+     └─ RunTest(index)         tests/main.cpp      switch (index) { case 21: return Test_hrtf_02_...(); ... }
+         └─ Test_hrtf_02_...() tests/cases/hrtf/02_...cpp   ★ 테스트 본문 (위에서 아래로 읽는다)
+             └─ HrtfEngine::Create / Process ...   src/    래퍼 코드 (F11 로 들어갈 수 있다)
+```
+
+* **목록과 호출이 모두 `main.cpp` 에 명시적으로** 있습니다. `kTests`(vector)에 제목·검증 내용을 나열하고, `RunTest` 의 `switch` 가 case 마다
+  어떤 함수를 호출하는지 그대로 보여 줍니다. 함수 포인터나 자동 등록 같은 간접 호출은 쓰지 않았습니다 (47개를 일일이 나열하므로 효율적이진 않지만 따라가기 쉽습니다).
+* 파일 이름 앞의 `NN_` 이 순서입니다. 테스트 id 는 `<suite>.<파일이름>` (예: `hrtf.02_source_on_right_is_louder_in_right_ear`), 함수 이름은 `Test_<suite>_<파일이름>`.
 
 ### 테스트 한 개의 모양 (모든 파일이 같은 형태)
 
 ```cpp
-int main(int argc, char** argv)
+int Test_hrtf_02_source_on_right_is_louder_in_right_ear()
 {
-    PA_BEGIN("suite.NN_이름", "제목", "무엇을 검증하는가");   // 헤더 출력. "--describe" 이면 설명만 출력하고 종료
+    PA_BEGIN("hrtf.02_source_on_right_is_louder_in_right_ear");   // 헤더 한 줄 (제목/설명은 main.cpp 의 kTests)
 
-    if (!std::filesystem::exists(DLL경로)) PA_SKIP("DLL 이 없음");   // 전제 조건이 없으면 SKIP (종료 코드 77)
+    if (!std::filesystem::exists(DLL경로)) PA_SKIP("DLL 이 없음");   // 전제 조건이 없으면 SKIP (반환 77)
 
     PA_STEP("엔진 생성");              // 큰 단계 로그
     auto engine = ...;                 // 실제 호출
-    PA_CHECK(engine != nullptr);       // 틀리면 FAIL 을 출력하고 main 에서 곧바로 return 1
+    PA_CHECK(engine != nullptr);       // 틀리면 FAIL 을 출력하고 이 함수에서 곧바로 return 1
 
     PA_LOG("에너지 = " << value);      // 세부 값 로그
-    return PA_PASS();                  // 끝까지 오면 PASS (종료 코드 0)
+    return PA_PASS();                  // 끝까지 오면 PASS (반환 0)
 }
 ```
 
-* **이전 구조와의 차이**: 예전에는 테스트를 "등록" 하고 러너가 함수 포인터로 호출했지만, 지금은 테스트가 독립 프로그램이라
-  디버거에서 그 파일의 `main()` 첫 줄부터 한 줄씩 따라가면 됩니다. `PA_CHECK` 도 예외가 아니라 `main()` 안에서 곧바로 `return` 합니다.
-* 파일 이름 앞의 `NN_` 이 표시/실행 순서입니다. 실행 파일 이름은 `<suite>.<파일이름>.exe` (예: `hrtf.02_source_on_right_is_louder_in_right_ear.exe`).
-* 설명의 원본은 각 파일의 `PA_BEGIN(...)` 입니다. 메뉴는 각 실행 파일에 `--describe` 를 주어 제목/설명을 받아 오므로 별도의 목록을 관리하지 않습니다.
+* `PA_CHECK` 는 예외를 던지지 않고 **함수 안에서 곧바로 `return`** 합니다. 어느 줄에서 멈췄는지가 코드에 그대로 보입니다.
 
 ### 설계 결정
 * **DLL 은 정적 링크 대신 동적 로드**: `.lib` import 방식은 DLL 이 없으면 프로그램이 시작조차 못 합니다. 동적 로드는 *누락된 DLL/export 를 사람이 읽을 수 있는 오류*로 알려주고(테스트는 SKIP), 이번처럼 **헤더와 DLL 이 어긋난 경우(`GetHasReverbTailRemaining`)에도 대응**할 수 있습니다.
@@ -177,17 +187,18 @@ AcousticsToolkit\run_tests.bat unit       suite 하나 실행 (unit / hrtf / pre
 AcousticsToolkit\run_tests.bat list       테스트 목록(설명 포함)만 출력
 AcousticsToolkit\run_tests.bat build      빌드만
 AcousticsToolkit\run_tests.bat rebuild    build 폴더를 지우고 처음부터 구성 + 빌드
-AcousticsToolkit\run_tests.bat --suite hrtf --filter right_ear    그 밖의 인자는 pa_menu.exe 에 그대로 전달
+AcousticsToolkit\run_tests.bat 22         22번 테스트만 (번호, 21-25 범위, hrtf 같은 suite 이름도 가능)
+AcousticsToolkit\run_tests.bat --suite hrtf --filter right_ear    그 밖의 인자는 pa_tests.exe 에 그대로 전달
 ```
 
-bat 는 cmake 를 찾고(없으면 VS 포함 cmake 탐색) → build 폴더가 없으면 구성 → Release 증분 빌드 → 메뉴 실행까지 자동으로 합니다.
+bat 는 cmake 를 찾고(없으면 VS 포함 cmake 탐색) → build 폴더가 없으면 구성 → Release 증분 빌드 → `pa_tests.exe` 실행까지 자동으로 합니다.
 환경변수 `PA_NO_BUILD=1`(빌드 건너뛰기), `PA_NO_PAUSE=1`(종료 시 대기 안 함, 스크립트용)을 지원합니다.
 
-### 대화형 메뉴 (`pa_menu.exe`)
+### 대화형 메뉴
 
-메뉴를 열면 **가능한 모든 테스트가 번호 + 제목 + 검증 내용과 함께** 표시되고, suite 별로 필요한 파일(`HrtfDsp.dll` 등)이 있는지 `[OK]/[없음]`으로 보입니다.
-번호를 골라 실행하면 해당 테스트 **프로그램이 별도 프로세스로 실행**되어, 헤더(제목/검증 내용) → **단계 로그(`- 단계`, `| 세부 값`)** → 결과(PASS/FAIL/SKIP) 순으로 출력됩니다.
-테스트가 크래시하면 "비정상 종료 + 종료 코드(0xC0000005 등)" 로 표시됩니다.
+`pa_tests.exe` 를 인자 없이 콘솔에서 실행하면 메뉴가 뜹니다. **가능한 모든 테스트가 번호 + id + 제목 + 검증 내용과 함께** 표시되고,
+suite 별로 필요한 파일(`HrtfDsp.dll` 등)이 있는지 `[OK]/[없음]`으로 보입니다. 번호를 고르면 테스트마다
+헤더(번호/id/제목/검증 내용) → **단계 로그(`- 단계`, `| 세부 값`)** → 결과(PASS/FAIL/SKIP + 시간) 순으로 출력됩니다.
 
 | 입력 | 의미 |
 |---|---|
@@ -199,31 +210,38 @@ bat 는 cmake 를 찾고(없으면 VS 포함 cmake 탐색) → build 폴더가 �
 
 ### 한 테스트만 디버깅하기 (브레이크포인트)
 
-1. `AcousticsToolkit\build\AcousticsToolkit.sln` 을 Visual Studio 로 엽니다 (Release 구성 권장: 동봉된 `.lib` 가 `/MD`).
-2. 솔루션 탐색기의 `cases` 폴더 → suite 폴더 → 보고 싶은 테스트 프로젝트(예: `hrtf.02_source_on_right_is_louder_in_right_ear`)를
-   **우클릭 → "시작 프로젝트로 설정"**.
-3. 그 프로젝트의 `.cpp` 안 `main()` 첫 줄(`PA_BEGIN`)에 브레이크포인트를 걸고 **F5**. 한 줄씩 **F10**, 함수 안으로는 **F11**.
-   (`HrtfEngine::Create` 등에서 F11 을 누르면 `src/` 의 래퍼 코드로 들어갑니다. DLL 내부로는 들어갈 수 없습니다.)
-4. 명령 인수/환경변수가 필요하면 프로젝트 속성 → 디버깅. 예) `PA_PREPROCESSOR_PIN=none`, `PA_TEST_DELAY_MS=150`.
+1. `AcousticsToolkit\build\AcousticsToolkit.sln` 을 Visual Studio 로 엽니다. **구성은 Release / x64** (동봉된 `.lib` 가 `/MD` 라서).
+   이 프로젝트의 Release 는 **최적화 끔(`/Od`) + PDB 생성(`/Zi`, `/DEBUG`)** 으로 설정되어 있어 Release 에서도 브레이크포인트가 걸립니다.
+2. 시작 프로젝트는 `pa_tests` 입니다 (이미 기본값). 프로젝트 속성 → 디버깅 → **명령 인수** 에 실행할 테스트 번호를 넣습니다. 예) `22`
+   (비워 두면 콘솔에 메뉴가 뜨고 거기서 번호를 입력해도 됩니다.)
+3. 브레이크포인트를 걸 곳:
+   * 테스트 본문: `tests/cases/<suite>/NN_이름.cpp` 의 `Test_...()` 첫 줄(`PA_BEGIN`)
+   * 흐름 전체: `tests/main.cpp` 의 `RunTest` 안 해당 `case`
+4. **F5** 로 시작해 **F10**(한 줄), **F11**(함수 안으로; `HrtfEngine::Create` 등에서 `src/` 래퍼 코드로 들어갑니다. DLL 내부로는 들어갈 수 없습니다).
+5. 환경변수가 필요하면 프로젝트 속성 → 디버깅 → 환경. 예) `PA_PREPROCESSOR_PIN=none`, `PA_TEST_DELAY_MS=150`.
 
 솔루션 탐색기에는 소스뿐 아니라 **우리 헤더(`include/pa`, `tests/common`)와 Triton 공개 헤더(`ThirdParty/Include`)도 폴더 구조대로 표시**됩니다.
-`pa_menu` 는 기본 시작 프로젝트입니다.
 
 ### 수동 빌드/실행
 
 ```powershell
 # VS2022 x64. Release 필수 (동봉된 .lib 가 /MD 로 빌드됨)
 cmake -S AcousticsToolkit -B AcousticsToolkit/build -G "Visual Studio 17 2022" -A x64
-cmake --build AcousticsToolkit/build --config Release -j 8      # 모든 실행 파일은 build\bin\Release\ 에 모인다
+cmake --build AcousticsToolkit/build --config Release -j 8      # 실행 파일: build\bin\Release\pa_tests.exe
 
-AcousticsToolkit\build\bin\Release\pa_menu.exe                   # 콘솔이면 메뉴, 아니면 e2e 제외 전부
-AcousticsToolkit\build\bin\Release\pa_menu.exe --list            # 테스트 목록(설명 포함)
-AcousticsToolkit\build\bin\Release\pa_menu.exe --suite unit      # suite 실행
-AcousticsToolkit\build\bin\Release\hrtf.02_source_on_right_is_louder_in_right_ear.exe   # 테스트 하나를 직접 실행
+AcousticsToolkit\build\bin\Release\pa_tests.exe                  # 콘솔이면 메뉴, 아니면 e2e 제외 전부
+AcousticsToolkit\build\bin\Release\pa_tests.exe 22               # 번호 지정 (21-25, hrtf, all 도 가능)
+AcousticsToolkit\build\bin\Release\pa_tests.exe --list           # 테스트 목록(설명 포함)
+AcousticsToolkit\build\bin\Release\pa_tests.exe --suite unit     # suite 실행
+AcousticsToolkit\build\bin\Release\pa_tests.exe --test hrtf.02_source_on_right_is_louder_in_right_ear   # id 로 정확히 하나
 ctest --test-dir AcousticsToolkit/build -C Release --output-on-failure                 # CTest: 테스트마다 1개 항목(47개)
 ```
 
-**새 테스트 추가**: `tests/cases/<suite>/NN_이름.cpp` 를 만들고(위의 "테스트 한 개의 모양" 참고) `CMakeLists.txt` 의 해당 `PA_CASES_<SUITE>` 목록에 이름을 추가한 뒤 다시 구성하세요.
+**새 테스트 추가** (3곳을 같은 순서로):
+`tests/cases/<suite>/NN_이름.cpp` 에 `int Test_<suite>_NN_이름()` 작성 → `tests/TestList.h` 에 선언 추가 →
+`tests/main.cpp` 의 `kTests` 에 항목, `RunTest` 의 `switch` 에 case 추가 → `CMakeLists.txt` 의 `PA_CASES_<SUITE>` 에 파일 이름 추가 후 다시 구성.
+
+**주의**: 모든 테스트가 한 프로세스에서 실행되므로, 네이티브 크래시가 나면 그 뒤 테스트는 실행되지 않습니다 (크래시 위치는 모듈+RVA 로 자동 출력됩니다).
 
 | suite | 필요한 것 | 무엇을 검증하나 |
 |---|---|---|
@@ -235,7 +253,7 @@ ctest --test-dir AcousticsToolkit/build -C Release --output-on-failure          
 
 ### 실행 결과 (이 PC: Windows 10, VS2022 MSVC 19.44, Release)
 
-* 테스트 프로그램 **47개 전부 PASS** (unit 19 / hrtf 9 / preprocessor 10 / runtime 8 / e2e 1, CTest 47/47).
+* 테스트 **47개 전부 PASS** (unit 19 / hrtf 9 / preprocessor 10 / runtime 8 / e2e 1, CTest 47/47; 한 프로세스로 e2e 제외 46개 실행도 통과).
 * e2e 실측 (8×6×3 m 방, 150 Hz, 프로브 1개): 전처리 13 ms → 로컬 베이크 약 5.6 s (종료 코드 0, `.ace` 생성) →
   런타임 로드(`probes loaded=1 failed=0`) → 쿼리 `path=5.55 m (직선 5.15 m), dry +9.67 dB, wet +8.67 dB, T60 3.18 s, spread 251°` → HRTF 출력 비무음.
   (설정이 극단적으로 작은 테스트용이라 이 수치는 **물리적 정확도의 근거가 아니라 "파이프라인이 끝까지 동작함"의 근거**입니다.)
@@ -254,7 +272,7 @@ ctest --test-dir AcousticsToolkit/build -C Release --output-on-failure          
 ### 3번 크래시 추적 결과 (Ghidra 12.1.4 + JDK 21 설치 후)
 
 **측정으로 확정된 것**
-1. 크래시한 스레드는 전부 **워커 스레드**이고 접근 종류는 `exec`(매핑 해제된 코드 실행)입니다. (`tests/common/CrashTrace.h`, 모든 테스트 프로그램에 자동 적용)
+1. 크래시한 스레드는 전부 **워커 스레드**이고 접근 종류는 `exec`(매핑 해제된 코드 실행)입니다. (`tests/common/CrashTrace.h`, 프로세스 시작 시 자동 적용)
 2. 폴팅 주소는 `Triton.Preprocessor.dll` 이미지(베이스 `0x7FFD2CBC0000`, 크기 `0x379000`) **밖**이며, 로드 시점 모듈 목록과 대조하면
    모두 **`VCOMP140.DLL`(MSVC OpenMP 런타임) RVA `0x43AF` / `0x43B8` / `0x43BF`** 입니다. 즉 Triton 코드가 아니라 OpenMP 런타임입니다.
 3. Ghidra 디컴파일: 그 RVA는 vcomp140 의 한 함수(`FUN_180004374`) 안이며, "상태값이 2가 될 때까지 최대 100 ms 스핀(`SwitchToThread`) 후
@@ -288,7 +306,7 @@ ctest --test-dir AcousticsToolkit/build -C Release --output-on-failure          
 > **미확인**: 워커가 정확히 어느 호출(스핀 중 `SwitchToThread`/`GetTickCount64` 복귀 vs. 이벤트 대기 복귀)에서 죽는지는 폴팅 RIP(`+0x43AF` 등)가
 > 복귀 주소 위치라는 점만 확인했고, 호출별 구분은 하지 않았습니다. 100 ms 스핀 창과의 일치는 강한 정황이지만 vcomp 내부 소스는 확인하지 못했습니다.
 
-**진단 도구**: 모든 테스트 프로그램은 크래시 시 모듈+RVA 호출 스택을 자동 출력합니다(`tests/common/CrashTrace.h`). 환경변수 `PA_PREPROCESSOR_PIN=vcomp|dll|none`(기본 `vcomp`), `PA_PREPROCESSOR_DIAG=1`, `PA_TEST_DELAY_MS=<ms>`(언로드 직전 대기, preprocessor.08~10).
+**진단 도구**: 크래시가 나면 모듈+RVA 호출 스택을 자동 출력합니다(`tests/common/CrashTrace.h`). 환경변수 `PA_PREPROCESSOR_PIN=vcomp|dll|none`(기본 `vcomp`), `PA_PREPROCESSOR_DIAG=1`, `PA_TEST_DELAY_MS=<ms>`(언로드 직전 대기, preprocessor.08~10).
 
 ---
 

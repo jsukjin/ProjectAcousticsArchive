@@ -5,12 +5,12 @@
 // (방향에 위치용 스케일 0.01 을 곱해 버리면 방향이 거의 0 벡터가 되어 소리 방향이 사라진다.)
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "pa/CoordinateConversion.h"
 
-int main(int argc, char** argv)
+int Test_unit_07_coordinate_direction_has_no_scale()
 {
-    PA_BEGIN("unit.07_coordinate_direction_has_no_scale", "방향 변환은 길이를 보존",
-             "방향 벡터는 스케일 없이 Y 만 반전되어 단위 길이가 유지되는지 확인.");
+    PA_BEGIN("unit.07_coordinate_direction_has_no_scale");
 
     // [1] Unreal 의 +Y(오른쪽) 단위 방향
     PA_STEP("Unreal 방향 (0, 1, 0) 변환");

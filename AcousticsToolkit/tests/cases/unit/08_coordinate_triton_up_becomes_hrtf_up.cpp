@@ -6,12 +6,12 @@
 // 변환   : (x, y, z) -> (x, z, -y)
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "pa/CoordinateConversion.h"
 
-int main(int argc, char** argv)
+int Test_unit_08_coordinate_triton_up_becomes_hrtf_up()
 {
-    PA_BEGIN("unit.08_coordinate_triton_up_becomes_hrtf_up", "Triton -> HRTF 방향 변환",
-             "Triton +Z(위) -> HRTF +Y(위), Triton +Y(안쪽) -> HRTF -Z(앞), +X(오른쪽) 유지.");
+    PA_BEGIN("unit.08_coordinate_triton_up_becomes_hrtf_up");
 
     // [1] 위쪽: Triton (0,0,1) -> HRTF (0,1,0)
     PA_STEP("위쪽 방향");

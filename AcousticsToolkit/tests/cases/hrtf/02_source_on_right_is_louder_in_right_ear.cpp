@@ -10,14 +10,14 @@
 #include <filesystem>
 
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "Helpers.h"
 #include "TestPaths.h"
 #include "pa/HrtfEngine.h"
 
-int main(int argc, char** argv)
+int Test_hrtf_02_source_on_right_is_louder_in_right_ear()
 {
-    PA_BEGIN("hrtf.02_source_on_right_is_louder_in_right_ear", "오른쪽 소스는 오른쪽 귀가 더 큼",
-             "오른쪽 2m 의 1kHz 사인파를 8프레임 처리해 양 귀 에너지를 비교 (양이 레벨 차, ILD).");
+    PA_BEGIN("hrtf.02_source_on_right_is_louder_in_right_ear");
 
     if (!std::filesystem::exists(pa_test_paths::kHrtfDll)) PA_SKIP("HrtfDsp.dll 이 없음");
 

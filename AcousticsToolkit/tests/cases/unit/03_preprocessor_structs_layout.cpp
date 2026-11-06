@@ -5,12 +5,12 @@
 // TritonOperationalParameters 는 고정 길이 char 배열이 많아 크기가 크다(1149바이트).
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "TritonPreprocessorApiTypes.h"
 
-int main(int argc, char** argv)
+int Test_unit_03_preprocessor_structs_layout()
 {
-    PA_BEGIN("unit.03_preprocessor_structs_layout", "Preprocessor 구조체 레이아웃 고정",
-             "TritonSimulationParameters(84B), TritonOperationalParameters(1149B), 재질/삼각형 구조체 크기를 확인.");
+    PA_BEGIN("unit.03_preprocessor_structs_layout");
 
     // [1] 프로브 샘플링 설정: float 4개 = 16
     PA_STEP("TritonProbeSamplingSpecification / TritonBoundingBox");

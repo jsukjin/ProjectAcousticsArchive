@@ -10,13 +10,13 @@
 #include <filesystem>
 
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "TestPaths.h"
 #include "pa/PreprocessorClient.h"
 
-int main(int argc, char** argv)
+int Test_preprocessor_06_error_paths_return_failure_not_crash()
 {
-    PA_BEGIN("preprocessor.06_error_paths_return_failure_not_crash", "오류 경로는 크래시 없이 실패 반환",
-             "없는 파라미터/재질/설정 파일을 열 때 false/nullptr 이 반환되는지 확인.");
+    PA_BEGIN("preprocessor.06_error_paths_return_failure_not_crash");
 
     if (!std::filesystem::exists(pa_test_paths::kPreprocessorDll)) PA_SKIP("Triton.Preprocessor.dll 이 없음");
 

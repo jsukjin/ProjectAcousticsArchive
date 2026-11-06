@@ -10,13 +10,13 @@
 #include <filesystem>
 
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "TestPaths.h"
 #include "pa/HrtfEngine.h"
 
-int main(int argc, char** argv)
+int Test_hrtf_08_reverb_tail_query_is_optional_export()
 {
-    PA_BEGIN("hrtf.08_reverb_tail_query_is_optional_export", "[발견] 선택 export 처리",
-             "헤더는 선언하지만 이 DLL 은 export 하지 않는 HrtfEngineGetHasReverbTailRemaining 을 크래시 없이 false 로 처리하는지 확인.");
+    PA_BEGIN("hrtf.08_reverb_tail_query_is_optional_export");
 
     if (!std::filesystem::exists(pa_test_paths::kHrtfDll)) PA_SKIP("HrtfDsp.dll 이 없음");
 

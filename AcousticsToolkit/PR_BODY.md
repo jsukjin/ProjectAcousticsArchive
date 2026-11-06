@@ -5,7 +5,7 @@
 ## Summary
 - Add `AcousticsToolkit/`: C++17 wrappers for the prebuilt Project Acoustics (Triton) binaries, with Korean documentation (`README_KR.md`).
   - `HrtfEngine` (HrtfDsp.dll), `PreprocessorClient` (Triton.Preprocessor.dll), `LocalBakeRunner` (Triton.LocalProcessor.exe), `RuntimeAcoustics` (Triton.Runtime/Codec/zfp libs), plus coordinate conversion, a Triton-to-HRTF parameter bridge and a procedural scene builder.
-- Test programs: 47 standalone programs, one .cpp per test, each with its own main() written top to bottom so a single test can be debugged by setting it as the startup project and pressing F5 (19 unit, 9 hrtf, 10 preprocessor, 8 runtime, 1 end-to-end: mesh -> voxel/probes -> local bake -> ACE -> query -> HRTF). pa_menu.exe lists every test with a description and runs the selected ones in separate processes; run_tests.bat builds and opens it.
+- Tests: 47 tests, one .cpp per test (a function each), run from a single pa_tests executable. main.cpp lists them in a vector and calls each through an explicit switch (no function-pointer registration), so a test can be followed in the debugger from main -> switch -> test function -> wrapper code. Release is configured without optimization and with PDBs so breakpoints work. Includes an interactive menu (pa_tests with no arguments, or run_tests.bat) that lists every test with a description (19 unit, 9 hrtf, 10 preprocessor, 8 runtime, 1 end-to-end: mesh -> voxel/probes -> local bake -> ACE -> query -> HRTF).
 - Fix a crash found while testing: unloading `Triton.Preprocessor.dll` within ~100 ms of an OpenMP parallel region crashes worker threads inside `VCOMP140.DLL`. The client now pins `VCOMP140.DLL`.
 
 ## Findings worth knowing
@@ -16,7 +16,7 @@
 ## Test plan
 - [x] `cmake -S AcousticsToolkit -B AcousticsToolkit/build -G "Visual Studio 17 2022" -A x64`
 - [x] `cmake --build AcousticsToolkit/build --config Release`
-- [x] `ctest --test-dir AcousticsToolkit/build -C Release` (47/47 test programs)
+- [x] `ctest --test-dir AcousticsToolkit/build -C Release` (47/47 tests)
 - [x] e2e: 8x6x3 m room, 150 Hz, 1 probe; local bake about 5.6 s, ACE loaded, query returns finite parameters, HRTF output non-silent
 
 ## Limitations

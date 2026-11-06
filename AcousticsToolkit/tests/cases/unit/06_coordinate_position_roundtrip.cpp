@@ -4,12 +4,12 @@
 // Unreal -> Triton -> Unreal 로 돌려도 원래 값이 나와야 한다. 한쪽 변환만 틀려도 이 테스트가 잡는다.
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "pa/CoordinateConversion.h"
 
-int main(int argc, char** argv)
+int Test_unit_06_coordinate_position_roundtrip()
 {
-    PA_BEGIN("unit.06_coordinate_position_roundtrip", "위치 변환 왕복 일치",
-             "Unreal -> Triton -> Unreal 로 돌려도 원래 값이 나오는지 확인.");
+    PA_BEGIN("unit.06_coordinate_position_roundtrip");
 
     // [1] 임의의 Unreal 위치 (음수 Y 포함: 부호 반전이 두 번 일어나야 원래대로)
     PA_STEP("Unreal -> Triton -> Unreal 왕복");

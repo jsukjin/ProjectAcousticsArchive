@@ -6,16 +6,15 @@
 //   우리 쪽 구조체 크기가 1바이트라도 다르면 DLL/라이브러리가 쓴 값을 엉뚱한 위치에서 읽게 된다.
 //   헤더가 바뀌어 필드가 늘거나 정렬이 바뀌면 이 테스트가 바로 깨져서 알려 준다.
 //
-// 이 테스트가 시작되는 곳: 아래 main() 의 첫 줄 (F5 로 이 프로젝트를 시작하면 여기서 멈춘다)
+// 이 테스트가 시작되는 곳: 아래 Test_unit_01_triton_runtime_param_structs_are_packed() 의 첫 줄 (main.cpp 의 switch 가 이 함수를 호출한다)
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "TritonApiTypes.h" // DryParams, WetParams, TritonAcousticParameters, TritonDynamicOpeningInfo
 
-int main(int argc, char** argv)
+int Test_unit_01_triton_runtime_param_structs_are_packed()
 {
-    PA_BEGIN("unit.01_triton_runtime_param_structs_are_packed", "Triton 런타임 파라미터 구조체 크기 고정",
-             "DryParams/WetParams/TritonAcousticParameters/TritonDynamicOpeningInfo 가 pack(1) 크기(24/24/48/11바이트)인지 확인. "
-             "크기가 다르면 DLL 과 주고받는 값이 어긋난다.");
+    PA_BEGIN("unit.01_triton_runtime_param_structs_are_packed");
 
     // [1] DryParams = GeomDist(4) + PathLength(4) + Loudness(4) + ArrivalDirection(12) = 24
     PA_STEP("DryParams 크기 확인");

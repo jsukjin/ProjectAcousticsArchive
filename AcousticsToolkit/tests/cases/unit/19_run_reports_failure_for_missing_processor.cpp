@@ -5,12 +5,12 @@
 // started=false + 사유 문자열을 돌려주는지 확인한다.
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "pa/LocalBakeRunner.h"
 
-int main(int argc, char** argv)
+int Test_unit_19_run_reports_failure_for_missing_processor()
 {
-    PA_BEGIN("unit.19_run_reports_failure_for_missing_processor", "없는 exe 실행 시 오류 보고",
-             "LocalProcessor 경로가 틀리면 프로세스를 띄우지 않고 사유를 반환하는지 확인.");
+    PA_BEGIN("unit.19_run_reports_failure_for_missing_processor");
 
     // [1] 존재하지 않는 경로로 옵션 구성
     PA_STEP("존재하지 않는 exe 로 Run 호출");

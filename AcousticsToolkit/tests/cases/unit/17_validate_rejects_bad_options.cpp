@@ -5,12 +5,12 @@
 // 사유 문자열을 돌려주는지 확인한다. (빈 문자열 = 문제 없음)
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "pa/LocalBakeRunner.h"
 
-int main(int argc, char** argv)
+int Test_unit_17_validate_rejects_bad_options()
 {
-    PA_BEGIN("unit.17_validate_rejects_bad_options", "잘못된 베이크 옵션 거부",
-             "ConfigFile 누락, 경로가 들어간 ConfigFile, 음수 스레드, 없는 exe 를 모두 오류로 처리하는지 확인.");
+    PA_BEGIN("unit.17_validate_rejects_bad_options");
 
     // 기준이 되는 올바른 옵션 (파일 존재 확인은 끈다: checkFilesExist=false)
     pa::LocalBakeOptions good;

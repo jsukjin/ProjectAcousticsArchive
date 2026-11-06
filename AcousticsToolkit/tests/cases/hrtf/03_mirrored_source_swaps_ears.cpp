@@ -7,14 +7,14 @@
 #include <filesystem>
 
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "Helpers.h"
 #include "TestPaths.h"
 #include "pa/HrtfEngine.h"
 
-int main(int argc, char** argv)
+int Test_hrtf_03_mirrored_source_swaps_ears()
 {
-    PA_BEGIN("hrtf.03_mirrored_source_swaps_ears", "왼쪽 소스는 왼쪽 귀가 더 큼",
-             "위 테스트의 거울상: 왼쪽 소스일 때 좌우 크기가 뒤바뀌는지 확인.");
+    PA_BEGIN("hrtf.03_mirrored_source_swaps_ears");
 
     if (!std::filesystem::exists(pa_test_paths::kHrtfDll)) PA_SKIP("HrtfDsp.dll 이 없음");
 

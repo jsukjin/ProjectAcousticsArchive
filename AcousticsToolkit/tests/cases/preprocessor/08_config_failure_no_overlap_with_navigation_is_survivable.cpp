@@ -14,15 +14,15 @@
 #include <filesystem>
 
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "Helpers.h"
 #include "TestPaths.h"
 #include "pa/PreprocessorClient.h"
 #include "pa/ProceduralScene.h"
 
-int main(int argc, char** argv)
+int Test_preprocessor_08_config_failure_no_overlap_with_navigation_is_survivable()
 {
-    PA_BEGIN("preprocessor.08_config_failure_no_overlap_with_navigation_is_survivable", "실패 경로 1: 볼륨이 내비게이션과 안 겹침",
-             "포함 볼륨이 멀리 떨어진 씬으로 설정 생성을 실패시키고, 이후 해제/언로드가 크래시 없이 끝나는지 확인.");
+    PA_BEGIN("preprocessor.08_config_failure_no_overlap_with_navigation_is_survivable");
 
     if (!std::filesystem::exists(pa_test_paths::kPreprocessorDll)) PA_SKIP("Triton.Preprocessor.dll 이 없음");
 

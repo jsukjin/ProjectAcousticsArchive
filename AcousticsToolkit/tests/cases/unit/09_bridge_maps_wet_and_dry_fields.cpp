@@ -5,12 +5,12 @@
 // 이 테스트는 가운데 변환(TritonToHrtfParameters)이 직접음/잔향 필드를 올바르게 옮기는지 본다.
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "pa/AcousticsBridge.h"
 
-int main(int argc, char** argv)
+int Test_unit_09_bridge_maps_wet_and_dry_fields()
 {
-    PA_BEGIN("unit.09_bridge_maps_wet_and_dry_fields", "Triton 결과 -> HRTF 파라미터 매핑",
-             "직접음(거리/차폐/방향)과 잔향(음량/방향/퍼짐/T60) 필드가 올바르게 옮겨지는지, 10m 거리 감쇠가 -20dB 인지 확인.");
+    PA_BEGIN("unit.09_bridge_maps_wet_and_dry_fields");
 
     // [1] 입력 만들기: Triton 이 계산했다고 가정하는 값들
     PA_STEP("Triton 쿼리 결과(가짜 값) 구성");

@@ -5,12 +5,12 @@
 // 이 값을 그대로 오디오 엔진에 넘기면 무음/폭음이 되므로, 넘기기 전에 감지해야 한다.
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "pa/AcousticsBridge.h"
 
-int main(int argc, char** argv)
+int Test_unit_11_bridge_detects_triton_failure_code()
 {
-    PA_BEGIN("unit.11_bridge_detects_triton_failure_code", "Triton 실패 값 감지",
-             "파라미터에 FailureCode(-FLT_MAX) 가 있으면 실패로 판정하는지 확인.");
+    PA_BEGIN("unit.11_bridge_detects_triton_failure_code");
 
     // [1] 정상 값(0 으로 채움)은 실패로 판정되면 안 된다
     PA_STEP("정상 파라미터");

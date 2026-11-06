@@ -11,13 +11,13 @@
 #include <filesystem>
 
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "TestPaths.h"
 #include "pa/HrtfEngine.h"
 
-int main(int argc, char** argv)
+int Test_hrtf_07_panner_channel_count_query_is_not_refreshed()
 {
-    PA_BEGIN("hrtf.07_panner_channel_count_query_is_not_refreshed", "[특성 고정] 채널 수 조회는 갱신 안 됨",
-             "SetOutputFormat(5.1) 후에도 GetNumOutputChannels 가 2 를 반환하는 DLL 의 실제 동작을 고정 (DLL 이 바뀌면 깨져서 알려줌).");
+    PA_BEGIN("hrtf.07_panner_channel_count_query_is_not_refreshed");
 
     if (!std::filesystem::exists(pa_test_paths::kHrtfDll)) PA_SKIP("HrtfDsp.dll 이 없음");
 

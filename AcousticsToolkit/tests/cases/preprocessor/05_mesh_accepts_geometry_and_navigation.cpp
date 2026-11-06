@@ -10,14 +10,14 @@
 #include <filesystem>
 
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "TestPaths.h"
 #include "pa/PreprocessorClient.h"
 #include "pa/ProceduralScene.h"
 
-int main(int argc, char** argv)
+int Test_preprocessor_05_mesh_accepts_geometry_and_navigation()
 {
-    PA_BEGIN("preprocessor.05_mesh_accepts_geometry_and_navigation", "음향 메시 추가",
-             "지오메트리(방) + 내비게이션(바닥) + 핀 프로브를 메시에 추가할 수 있는지 확인.");
+    PA_BEGIN("preprocessor.05_mesh_accepts_geometry_and_navigation");
 
     if (!std::filesystem::exists(pa_test_paths::kPreprocessorDll)) PA_SKIP("Triton.Preprocessor.dll 이 없음");
 

@@ -6,12 +6,12 @@
 // LocalBakeRunner::QuoteArgument 가 그 규칙을 지키는지 확인한다.
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "pa/LocalBakeRunner.h"
 
-int main(int argc, char** argv)
+int Test_unit_14_quote_argument_rules()
 {
-    PA_BEGIN("unit.14_quote_argument_rules", "명령줄 인자 따옴표/이스케이프",
-             "공백/따옴표/끝 백슬래시가 Windows 규칙대로 처리되는지 확인.");
+    PA_BEGIN("unit.14_quote_argument_rules");
 
     // [1] 공백/따옴표가 없으면 그대로 둔다
     PA_STEP("공백 없는 인자는 그대로");

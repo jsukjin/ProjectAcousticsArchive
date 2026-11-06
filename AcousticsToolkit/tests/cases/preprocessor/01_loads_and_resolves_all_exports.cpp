@@ -10,13 +10,13 @@
 #include <filesystem>
 
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "TestPaths.h"
 #include "pa/PreprocessorClient.h"
 
-int main(int argc, char** argv)
+int Test_preprocessor_01_loads_and_resolves_all_exports()
 {
-    PA_BEGIN("preprocessor.01_loads_and_resolves_all_exports", "DLL 로드 + export 26개 해석",
-             "Triton.Preprocessor.dll 을 로드하고 C API 26개를 모두 찾는지 확인 (의존 DLL libfbxsdk.dll 포함).");
+    PA_BEGIN("preprocessor.01_loads_and_resolves_all_exports");
 
     if (!std::filesystem::exists(pa_test_paths::kPreprocessorDll)) PA_SKIP("Triton.Preprocessor.dll 이 없음");
 

@@ -5,12 +5,12 @@
 // (pack(1) 이 아닌 일반 구조체라 컴파일러 정렬 규칙을 따른다 -> 컴파일러/옵션이 바뀌면 달라질 수 있다.)
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "HrtfApiTypes.h" // HrtfAcousticParameters, HrtfInputBuffer, HRTF_NUM_FREQUENCY_BANDS
 
-int main(int argc, char** argv)
+int Test_unit_02_hrtf_structs_layout()
 {
-    PA_BEGIN("unit.02_hrtf_structs_layout", "HRTF 구조체 레이아웃 고정",
-             "HrtfAcousticParameters(72B), HrtfInputBuffer(16B), 주파수 밴드 수(7) 를 확인.");
+    PA_BEGIN("unit.02_hrtf_structs_layout");
 
     // [1] float 18개로 이루어진 소스별 음향 파라미터:
     //     거리(4) + 직접음 방향/파워 + 2차 도래 방향/파워 + outdoorness + 잔향(Wet) 6개 = 72바이트

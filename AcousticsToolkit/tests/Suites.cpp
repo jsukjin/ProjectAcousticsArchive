@@ -1,15 +1,15 @@
 // =============================================================================
 // Suites.cpp  --  suite(테스트 묶음)별 제목/설명/필요 파일 (Launcher.h 의 SuiteInfo)
 // -----------------------------------------------------------------------------
-// 개별 테스트의 제목/설명은 각 테스트 파일의 PA_BEGIN(...) 에 있고, 여기에는 "묶음 단위" 정보만 둔다.
+// 개별 테스트의 제목/설명은 main.cpp 의 목록(kTests)에 있고, 여기에는 "묶음 단위" 정보만 둔다.
 // 표시 순서 = 이 배열의 순서.
 // =============================================================================
-#include "Launcher.h"
+#include "Suites.h"
 #include "TestPaths.h" // CMake 가 생성: DLL/EXE 의 실제 경로
 
-namespace pa_launcher
+namespace pa_suites
 {
-    const std::vector<SuiteInfo>& Suites()
+    const std::vector<SuiteInfo>& All()
     {
         static const std::vector<SuiteInfo> suites = {
             {"unit",
@@ -52,10 +52,10 @@ namespace pa_launcher
         return suites;
     }
 
-    const SuiteInfo* FindSuite(const std::string& name)
+    const SuiteInfo* Find(const std::string& name)
     {
-        for (const auto& s : Suites())
+        for (const auto& s : All())
             if (s.name == name) return &s;
         return nullptr;
     }
-} // namespace pa_launcher
+} // namespace pa_suites

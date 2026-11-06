@@ -5,13 +5,13 @@
 // (Usage.txt: ConfigFile 만 필수, 나머지는 Optional)
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "pa/DynamicLibrary.h" // pa::WideToUtf8 (로그에 wstring 명령줄을 출력하기 위해)
 #include "pa/LocalBakeRunner.h"
 
-int main(int argc, char** argv)
+int Test_unit_15_build_command_line_minimal()
 {
-    PA_BEGIN("unit.15_build_command_line_minimal", "LocalProcessor 최소 명령줄",
-             "필수 옵션(--ConfigFile, --WorkingDir)만 있고 선택 옵션은 생략되는지 확인.");
+    PA_BEGIN("unit.15_build_command_line_minimal");
 
     // [1] 필수 값만 채운 옵션 (실제 파일은 필요 없다: 문자열 조립만 검사)
     PA_STEP("옵션 구성");

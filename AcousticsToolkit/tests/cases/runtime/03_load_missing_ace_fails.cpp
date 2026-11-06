@@ -5,12 +5,12 @@
 // (Triton 이 "FATAL: Failed to open data file" 를 stdout 으로 출력하는 것은 정상이다.)
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "pa/RuntimeAcoustics.h"
 
-int main(int argc, char** argv)
+int Test_runtime_03_load_missing_ace_fails()
 {
-    PA_BEGIN("runtime.03_load_missing_ace_fails", "없는 ACE 로드는 실패",
-             "존재하지 않는 .ace 를 열면 false 를 반환하는지 확인 (Triton 이 FATAL 로그를 출력하는 것은 정상).");
+    PA_BEGIN("runtime.03_load_missing_ace_fails");
 
     PA_STEP("RuntimeAcoustics 생성");
     pa::RuntimeAcoustics runtime;

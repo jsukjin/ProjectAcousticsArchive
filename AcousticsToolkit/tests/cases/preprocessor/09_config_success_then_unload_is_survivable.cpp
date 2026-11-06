@@ -16,15 +16,15 @@
 #include <filesystem>
 
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "Helpers.h"
 #include "TestPaths.h"
 #include "pa/PreprocessorClient.h"
 #include "pa/ProceduralScene.h"
 
-int main(int argc, char** argv)
+int Test_preprocessor_09_config_success_then_unload_is_survivable()
 {
-    PA_BEGIN("preprocessor.09_config_success_then_unload_is_survivable", "성공 직후 즉시 언로드 (OpenMP 크래시 방어)",
-             "설정 생성에 성공한 직후 바로 DLL 을 언로드. VCOMP140 pin 이 없으면 워커 스레드가 크래시하는 경로.");
+    PA_BEGIN("preprocessor.09_config_success_then_unload_is_survivable");
 
     if (!std::filesystem::exists(pa_test_paths::kPreprocessorDll)) PA_SKIP("Triton.Preprocessor.dll 이 없음");
 

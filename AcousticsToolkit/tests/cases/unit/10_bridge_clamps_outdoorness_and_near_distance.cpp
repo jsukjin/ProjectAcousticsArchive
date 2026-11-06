@@ -5,12 +5,12 @@
 // - 거리 감쇠는 1m 이내에서 0dB (너무 가까울 때 소리가 폭발적으로 커지지 않도록).
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "pa/AcousticsBridge.h"
 
-int main(int argc, char** argv)
+int Test_unit_10_bridge_clamps_outdoorness_and_near_distance()
 {
-    PA_BEGIN("unit.10_bridge_clamps_outdoorness_and_near_distance", "범위 보정 (outdoorness, 근거리)",
-             "outdoorness 를 [0,1] 로 자르고, 1m 이내 거리 감쇠가 0dB 인지 확인.");
+    PA_BEGIN("unit.10_bridge_clamps_outdoorness_and_near_distance");
 
     // 경로 길이 0.2m (1m 이내)인 쿼리 결과
     TritonAcousticParameters t{};

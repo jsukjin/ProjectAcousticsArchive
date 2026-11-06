@@ -5,12 +5,12 @@
 // IsWatertight 가 이것을 "닫힌 메시" 로 잘못 판정하지 않는지 확인한다 (판정 함수의 반대 방향 검증).
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "pa/ProceduralScene.h"
 
-int main(int argc, char** argv)
+int Test_unit_13_procedural_quad_is_open_surface()
 {
-    PA_BEGIN("unit.13_procedural_quad_is_open_surface", "바닥 사각형은 열린 면",
-             "내비게이션용 사각형(2삼각형)이 닫힌 메시로 판정되지 않아야 함.");
+    PA_BEGIN("unit.13_procedural_quad_is_open_surface");
 
     // [1] 4 x 3 m 바닥, 높이 0.05m
     PA_STEP("MakeHorizontalQuad 호출");

@@ -8,14 +8,14 @@
 #include <filesystem>
 
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "Helpers.h"
 #include "TestPaths.h"
 #include "pa/PreprocessorClient.h"
 
-int main(int argc, char** argv)
+int Test_preprocessor_03_material_library_roundtrip()
 {
-    PA_BEGIN("preprocessor.03_material_library_roundtrip", "재질 라이브러리 생성/조회",
-             "재질 3개로 라이브러리를 만들고 개수=3, 코드가 서로 다른지 확인.");
+    PA_BEGIN("preprocessor.03_material_library_roundtrip");
 
     if (!std::filesystem::exists(pa_test_paths::kPreprocessorDll)) PA_SKIP("Triton.Preprocessor.dll 이 없음");
 

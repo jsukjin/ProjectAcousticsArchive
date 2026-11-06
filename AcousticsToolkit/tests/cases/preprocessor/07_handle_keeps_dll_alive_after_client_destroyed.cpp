@@ -9,13 +9,13 @@
 #include <filesystem>
 
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "TestPaths.h"
 #include "pa/PreprocessorClient.h"
 
-int main(int argc, char** argv)
+int Test_preprocessor_07_handle_keeps_dll_alive_after_client_destroyed()
 {
-    PA_BEGIN("preprocessor.07_handle_keeps_dll_alive_after_client_destroyed", "핸들이 DLL 수명을 붙잡음",
-             "클라이언트를 먼저 파괴해도 핸들 해제가 안전한지(DLL 이 아직 로드 상태) 확인.");
+    PA_BEGIN("preprocessor.07_handle_keeps_dll_alive_after_client_destroyed");
 
     if (!std::filesystem::exists(pa_test_paths::kPreprocessorDll)) PA_SKIP("Triton.Preprocessor.dll 이 없음");
 

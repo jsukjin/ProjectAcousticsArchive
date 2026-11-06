@@ -9,14 +9,14 @@
 #include <filesystem>
 
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "Helpers.h"
 #include "TestPaths.h"
 #include "pa/HrtfEngine.h"
 
-int main(int argc, char** argv)
+int Test_hrtf_04_process_rejects_invalid_input()
 {
-    PA_BEGIN("hrtf.04_process_rejects_invalid_input", "잘못된 입력 거부",
-             "입력 개수가 maxSources 와 다르거나 길이가 1024 미만이면 빈 결과/0 을 반환하는지 확인.");
+    PA_BEGIN("hrtf.04_process_rejects_invalid_input");
 
     if (!std::filesystem::exists(pa_test_paths::kHrtfDll)) PA_SKIP("HrtfDsp.dll 이 없음");
 

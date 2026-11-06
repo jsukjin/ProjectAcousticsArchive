@@ -5,13 +5,13 @@
 //   --SharedInputDataDir / --OutputName / --NodeSize / --NumThreads / --Resume
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "pa/DynamicLibrary.h" // pa::WideToUtf8 (로그에 wstring 명령줄을 출력하기 위해)
 #include "pa/LocalBakeRunner.h"
 
-int main(int argc, char** argv)
+int Test_unit_16_build_command_line_all_options()
 {
-    PA_BEGIN("unit.16_build_command_line_all_options", "LocalProcessor 전체 옵션 명령줄",
-             "SharedInputDataDir/OutputName/NodeSize/NumThreads/Resume 이 모두 포함되는지 확인.");
+    PA_BEGIN("unit.16_build_command_line_all_options");
 
     // [1] 모든 옵션 지정
     PA_STEP("옵션 구성 (전부 지정)");

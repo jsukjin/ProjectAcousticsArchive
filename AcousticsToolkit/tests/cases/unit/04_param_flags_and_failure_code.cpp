@@ -6,13 +6,13 @@
 // - TRITON_DEFAULT_WALL_CODE: 재질을 지정하지 않았을 때 쓰는 기본 벽 코드.
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "TritonApiTypes.h"
 #include "TritonPreprocessorApiTypes.h"
 
-int main(int argc, char** argv)
+int Test_unit_04_param_flags_and_failure_code()
 {
-    PA_BEGIN("unit.04_param_flags_and_failure_code", "파라미터 플래그와 실패 센티널 값",
-             "TritonParamFlags 비트가 겹치지 않는지, FailureCode 가 -FLT_MAX 인지, 기본 벽 재질 코드가 2 인지 확인.");
+    PA_BEGIN("unit.04_param_flags_and_failure_code");
 
     // [1] 5개 플래그를 OR 했을 때 하위 5비트(0x1F)가 모두 채워져야 한다 = 서로 겹치지 않고 연속된 비트
     PA_STEP("플래그 비트 확인");

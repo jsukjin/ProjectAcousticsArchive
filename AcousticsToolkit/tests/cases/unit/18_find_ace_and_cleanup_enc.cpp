@@ -10,15 +10,15 @@
 #include <fstream>
 
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "TestPaths.h"
 #include "pa/LocalBakeRunner.h"
 
 namespace fs = std::filesystem;
 
-int main(int argc, char** argv)
+int Test_unit_18_find_ace_and_cleanup_enc()
 {
-    PA_BEGIN("unit.18_find_ace_and_cleanup_enc", "ACE 탐색 / ENC 정리",
-             "임시 폴더에서 *.ace(대소문자 무시)를 찾고 *.enc 만 삭제하는지 확인 (RunLocalBake.bat 의 del *.enc 와 동일).");
+    PA_BEGIN("unit.18_find_ace_and_cleanup_enc");
 
     // [1] 임시 폴더 준비 (매번 비우고 새로 만든다)
     PA_STEP("임시 폴더에 테스트 파일 5개 생성");

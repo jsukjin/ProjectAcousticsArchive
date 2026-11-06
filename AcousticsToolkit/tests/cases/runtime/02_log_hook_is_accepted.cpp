@@ -8,12 +8,12 @@
 //            그래서 훅(log)을 RuntimeAcoustics 보다 "먼저" 선언한다 (나중에 소멸).
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "pa/RuntimeAcoustics.h"
 
-int main(int argc, char** argv)
+int Test_runtime_02_log_hook_is_accepted()
 {
-    PA_BEGIN("runtime.02_log_hook_is_accepted", "로그 훅 연결",
-             "로그 훅을 연결한 채 존재하지 않는 ACE 를 열어 보며 훅이 안전하게 동작하는지 확인.");
+    PA_BEGIN("runtime.02_log_hook_is_accepted");
 
     pa::CapturingLogHook log; // RuntimeAcoustics 보다 오래 살아야 한다
 

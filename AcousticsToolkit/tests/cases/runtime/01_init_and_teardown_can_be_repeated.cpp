@@ -7,12 +7,12 @@
 // 이 테스트는 그 사이클을 3번 돌려도 매번 성공하는지(= 정리가 깨끗한지) 확인한다.
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "pa/RuntimeAcoustics.h"
 
-int main(int argc, char** argv)
+int Test_runtime_01_init_and_teardown_can_be_repeated()
 {
-    PA_BEGIN("runtime.01_init_and_teardown_can_be_repeated", "Init/TearDown 3회 반복",
-             "Triton 전역 초기화 -> 인스턴스 생성 -> 해제를 반복해도 매번 성공하는지 확인.");
+    PA_BEGIN("runtime.01_init_and_teardown_can_be_repeated");
 
     for (int round = 1; round <= 3; ++round)
     {

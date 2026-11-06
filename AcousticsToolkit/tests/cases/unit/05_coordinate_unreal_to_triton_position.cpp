@@ -6,12 +6,12 @@
 // 이 변환을 틀리면 소리의 위치가 좌우 거울상이 되거나 100배 어긋난다.
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "pa/CoordinateConversion.h"
 
-int main(int argc, char** argv)
+int Test_unit_05_coordinate_unreal_to_triton_position()
 {
-    PA_BEGIN("unit.05_coordinate_unreal_to_triton_position", "Unreal -> Triton 위치 변환",
-             "(100,200,50)cm -> (1,-2,0.5)m : Y 반전 + cm->m 스케일.");
+    PA_BEGIN("unit.05_coordinate_unreal_to_triton_position");
 
     // [1] 입력: Unreal 좌표 (cm)
     PA_STEP("Unreal 위치 (100, 200, 50) cm 를 변환");

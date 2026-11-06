@@ -7,12 +7,12 @@
 #include <algorithm>
 
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "pa/RuntimeAcoustics.h"
 
-int main(int argc, char** argv)
+int Test_runtime_07_reverb_send_weights_exact_match_selects_single_bus()
 {
-    PA_BEGIN("runtime.07_reverb_send_weights_exact_match_selects_single_bus", "리버브 가중치: 정확히 일치",
-             "목표 T60 이 2.0s 이면 2.0s 버스의 가중치가 가장 큰지 확인.");
+    PA_BEGIN("runtime.07_reverb_send_weights_exact_match_selects_single_bus");
 
     // [1] 목표 T60 = 2.0s (세 번째 버스와 같음)
     PA_STEP("목표 T60 2.0s 에 대한 가중치 계산");

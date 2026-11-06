@@ -7,13 +7,13 @@
 #include <filesystem>
 
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "TestPaths.h"
 #include "pa/HrtfEngine.h"
 
-int main(int argc, char** argv)
+int Test_hrtf_05_set_parameters_out_of_range_index_fails()
 {
-    PA_BEGIN("hrtf.05_set_parameters_out_of_range_index_fails", "범위 밖 소스 인덱스 거부",
-             "존재하지 않는 소스 인덱스에 파라미터를 설정하면 false 인지 확인.");
+    PA_BEGIN("hrtf.05_set_parameters_out_of_range_index_fails");
 
     if (!std::filesystem::exists(pa_test_paths::kHrtfDll)) PA_SKIP("HrtfDsp.dll 이 없음");
 

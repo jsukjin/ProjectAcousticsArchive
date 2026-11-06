@@ -16,15 +16,15 @@
 #include <filesystem>
 
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "Helpers.h"
 #include "TestPaths.h"
 #include "pa/PreprocessorClient.h"
 #include "pa/ProceduralScene.h"
 
-int main(int argc, char** argv)
+int Test_preprocessor_10_config_failure_zero_dense_probes_is_survivable()
 {
-    PA_BEGIN("preprocessor.10_config_failure_zero_dense_probes_is_survivable", "실패 경로 2: dense probe 0개 + 즉시 언로드",
-             "프로브가 하나도 안 만들어지는 씬에서 실패를 보고하고, 즉시 언로드해도 크래시하지 않는지 확인.");
+    PA_BEGIN("preprocessor.10_config_failure_zero_dense_probes_is_survivable");
 
     if (!std::filesystem::exists(pa_test_paths::kPreprocessorDll)) PA_SKIP("Triton.Preprocessor.dll 이 없음");
 

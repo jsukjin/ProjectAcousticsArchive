@@ -10,13 +10,13 @@
 #include <filesystem>
 
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "TestPaths.h"
 #include "pa/HrtfEngine.h"
 
-int main(int argc, char** argv)
+int Test_hrtf_01_binaural_engine_has_two_channels_left_right()
 {
-    PA_BEGIN("hrtf.01_binaural_engine_has_two_channels_left_right", "바이노럴 엔진 채널 구성",
-             "HrtfDsp.dll 로 엔진 생성 -> 출력 채널 2개, 방향이 왼쪽 귀(-X)/오른쪽 귀(+X) 인지 확인.");
+    PA_BEGIN("hrtf.01_binaural_engine_has_two_channels_left_right");
 
     // [0] 사전 조건: DLL 이 없으면 SKIP (실패 아님)
     if (!std::filesystem::exists(pa_test_paths::kHrtfDll)) PA_SKIP("HrtfDsp.dll 이 없음");

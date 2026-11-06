@@ -1,27 +1,27 @@
 // =============================================================================
-// Check.h  --  개별 테스트 프로그램(tests/cases/*/*.cpp)이 공통으로 쓰는 아주 작은 도구
+// Check.h  --  테스트 함수(tests/cases/*/*.cpp)가 공통으로 쓰는 아주 작은 도구
 // -----------------------------------------------------------------------------
-// [구조] 테스트 1개 = .cpp 1개 = 실행 파일 1개.  각 파일에는 자기 main() 이 있고,
-//        그 main() 안에서 위에서 아래로 "준비 -> 실행 -> 확인" 이 그대로 이어진다.
-//        (이전의 "테스트 등록 + 함수 포인터 호출" 방식이 아니므로, 디버거에서 그 파일의 main() 첫 줄부터
-//         한 줄씩 따라가면 된다.)
+// [구조]  테스트 1개 = .cpp 1개 = 함수 1개  (예: tests/cases/hrtf/02_...cpp 안의 Test_hrtf_02_...())
+//         tests/main.cpp 가 (1) 테스트 목록을 vector 로 쭉 나열하고 (2) 번호를 고르면 switch 로
+//         해당 Test_xxx() 를 "직접 호출" 한다.  함수 포인터/자동 등록 같은 간접 호출은 없다.
+//         디버거에서 main.cpp 의 switch -> 테스트 함수 -> 래퍼 코드(src/) 순서로 그대로 따라갈 수 있다.
 //
-// [사용 순서 - 모든 테스트 파일이 같은 모양]
-//   int main(int argc, char** argv)
+// [테스트 함수의 모양 - 모든 파일이 같다]
+//   int Test_suite_NN_이름()
 //   {
-//       PA_BEGIN("suite.name", "제목", "무엇을 검증하는가");   // 헤더 출력 (--describe 이면 설명만 출력하고 종료)
-//       PA_STEP("단계 제목");                                  // 큰 단계 로그
+//       PA_BEGIN("suite.NN_이름");          // 헤더 한 줄 출력 (제목/설명은 main.cpp 의 목록에 있다)
+//       PA_STEP("단계 제목");               // 큰 단계 로그
 //       ... 실제 호출 ...
-//       PA_LOG("값 = " << x);                                 // 세부 값 로그
-//       PA_CHECK(조건);                                        // 틀리면 FAIL 출력 후 즉시 main 에서 return 1
-//       return PA_PASS();                                      // 끝까지 오면 PASS (exit 0)
+//       PA_LOG("값 = " << x);               // 세부 값 로그
+//       PA_CHECK(조건);                      // 틀리면 FAIL 출력 후 이 함수에서 곧바로 return 1
+//       return PA_PASS();                    // 끝까지 오면 PASS (0)
 //   }
 //
-// [종료 코드]  0 = PASS,  1 = FAIL,  77 = SKIP (필요한 DLL/EXE 가 없을 때; CTest 도 SKIP 으로 인식)
+// [반환 값]  0 = PASS,  1 = FAIL,  77 = SKIP (필요한 DLL/EXE 가 없을 때; CTest 도 SKIP 으로 인식)
 //
 // [매크로가 return 을 직접 쓰는 이유]  예외(throw)로 빠져나가면 실패 지점의 흐름을 디버거로 따라가기 어렵다.
-//   PA_CHECK 가 main() 안에서 곧바로 return 하므로 "어느 줄에서 멈췄는지" 가 코드에 그대로 보인다.
-//   따라서 PA_CHECK/PA_SKIP 은 반드시 int 를 반환하는 main() 안에서만 사용한다.
+//   PA_CHECK 가 함수 안에서 곧바로 return 하므로 "어느 줄에서 멈췄는지" 가 코드에 그대로 보인다.
+//   따라서 PA_CHECK / PA_SKIP 은 반드시 int 를 반환하는 함수 안에서만 사용한다.
 // =============================================================================
 #pragma once
 
@@ -38,11 +38,11 @@
 #include <sstream>
 #include <string>
 
-#include "CrashTrace.h" // 네이티브 크래시를 모듈+RVA 로 출력 (PA_BEGIN 이 자동으로 켠다)
+#include "CrashTrace.h" // 네이티브 크래시를 모듈+RVA 로 출력 (main() 이 InitProcess 에서 한 번 켠다)
 
 namespace pa_case
 {
-    //! 종료 코드 규약
+    //! 반환 값 규약
     constexpr int kPass = 0;
     constexpr int kFail = 1;
     constexpr int kSkip = 77; // CTest 의 SKIP_RETURN_CODE 와 일치
@@ -114,41 +114,31 @@ namespace pa_case
         std::exit(kFail);
     }
 
-    //! "--describe" 가 인자에 있으면 제목/설명만 두 줄로 출력하고 true 를 반환한다.
-    //! 메뉴(pa_menu.exe)가 목록을 만들 때 각 테스트 프로그램에게 이 인자를 주어 설명을 받아 간다.
-    //! => 설명의 "원본" 은 각 테스트 파일 맨 위(PA_BEGIN)이며 별도의 카탈로그를 따로 관리하지 않는다.
-    inline bool HandleDescribe(int argc, char** argv, const char* title, const char* detail)
+    //! 프로세스 전체에 대한 초기화. main() 이 시작할 때 "한 번만" 호출한다.
+    //!  - 콘솔 출력 코드페이지를 UTF-8 로 (소스는 /utf-8 이므로 한글이 깨지지 않게)
+    //!  - 네이티브 크래시가 나면 모듈+RVA 호출 스택 출력
+    //!  - 처리되지 않은 C++ 예외를 FAIL 로 보고
+    inline void InitProcess()
     {
-        for (int i = 1; i < argc; ++i)
-        {
-            if (std::strcmp(argv[i], "--describe") == 0)
-            {
-                std::printf("%s\n%s\n", title, detail);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    //! 실행 시작 처리: 콘솔 UTF-8, 크래시 트레이스, 예외 핸들러, 헤더 출력
-    inline void Begin(const char* id, const char* title, const char* detail)
-    {
-        ::SetConsoleOutputCP(CP_UTF8); // 소스는 /utf-8 이므로 한글이 깨지지 않게 콘솔도 UTF-8
+        ::SetConsoleOutputCP(CP_UTF8);
         InstallCrashTrace();
         std::set_terminate(&OnTerminate);
-        std::printf(">> %s\n   %s\n   검증: %s\n", id, title, detail);
+    }
+
+    //! 테스트 시작 헤더 한 줄. (제목/설명은 main.cpp 의 목록(kTests)에 있고 실행 전에 main 이 출력한다)
+    inline void Begin(const char* id)
+    {
+        std::printf("   [%s]\n", id);
         std::fflush(stdout);
     }
 } // namespace pa_case
 
 // ---------------------------------------------------------------------------------------------
-// 매크로 (main(int argc, char** argv) 안에서 사용)
+// 매크로 (int 를 반환하는 테스트 함수 안에서 사용)
 // ---------------------------------------------------------------------------------------------
 
-//! 테스트 시작. --describe 면 설명만 출력하고 main 에서 곧바로 return 0.
-#define PA_BEGIN(id, title, detail)                                       \
-    if (pa_case::HandleDescribe(argc, argv, (title), (detail))) return 0; \
-    pa_case::Begin((id), (title), (detail))
+//! 테스트 시작.   예) PA_BEGIN("hrtf.02_source_on_right_is_louder_in_right_ear");
+#define PA_BEGIN(id) pa_case::Begin(id)
 
 //! 큰 단계 로그.   예) PA_STEP("DLL 로드");
 #define PA_STEP(text) pa_case::Step(text)
@@ -162,7 +152,7 @@ namespace pa_case
         pa_case::Log(pa_log_stream_.str()); \
     } while (0)
 
-//! 조건이 거짓이면 FAIL 을 출력하고 main 에서 곧바로 return 1.
+//! 조건이 거짓이면 FAIL 을 출력하고 이 함수에서 곧바로 return 1.
 #define PA_CHECK(cond)                                                              \
     do                                                                              \
     {                                                                               \
@@ -191,7 +181,7 @@ namespace pa_case
             return pa_case::Fail(__FILE__, __LINE__, pa_case::DescribeCompare(#a, #b, (a), (b)) + "  허용오차 " #eps); \
     } while (0)
 
-//! 전제 조건이 안 맞아 실행할 수 없을 때 (예: DLL 없음). main 에서 return 77.
+//! 전제 조건이 안 맞아 실행할 수 없을 때 (예: DLL 없음). 이 함수에서 return 77.
 #define PA_SKIP(reason) return pa_case::Skip(reason)
 
 //! 끝까지 도달 = PASS.   마지막 줄에 `return PA_PASS();`

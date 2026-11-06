@@ -10,14 +10,14 @@
 #include <filesystem>
 
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "Helpers.h"
 #include "TestPaths.h"
 #include "pa/HrtfEngine.h"
 
-int main(int argc, char** argv)
+int Test_hrtf_06_panner_process_honors_output_format()
 {
-    PA_BEGIN("hrtf.06_panner_process_honors_output_format", "Panner 출력 포맷별 실제 출력",
-             "Mono/Stereo/Quad/5.0/5.1/7.1 로 바꿔가며 Process 가 프레임x채널 만큼 생성하고 무음이 아닌지 확인.");
+    PA_BEGIN("hrtf.06_panner_process_honors_output_format");
 
     if (!std::filesystem::exists(pa_test_paths::kHrtfDll)) PA_SKIP("HrtfDsp.dll 이 없음");
 

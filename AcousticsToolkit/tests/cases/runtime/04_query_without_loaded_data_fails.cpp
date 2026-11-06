@@ -5,12 +5,12 @@
 // ACE 를 열지 않은 인스턴스에서 QueryAcoustics / GetOutdoornessAtListener 가 false 를 반환하는지 확인한다.
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "pa/RuntimeAcoustics.h"
 
-int main(int argc, char** argv)
+int Test_runtime_04_query_without_loaded_data_fails()
 {
-    PA_BEGIN("runtime.04_query_without_loaded_data_fails", "데이터 없이 쿼리하면 실패",
-             "프로브가 로드되지 않았을 때 QueryAcoustics/Outdoorness 가 false 인지 확인.");
+    PA_BEGIN("runtime.04_query_without_loaded_data_fails");
 
     PA_STEP("RuntimeAcoustics 생성 (ACE 는 열지 않음)");
     pa::RuntimeAcoustics runtime;

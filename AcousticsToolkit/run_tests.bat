@@ -6,7 +6,7 @@ rem  하는 일 (순서대로)
 rem    1) cmake 를 찾는다 (PATH 에 없으면 Visual Studio 에 포함된 cmake 를 탐색)
 rem    2) build 폴더가 없으면 자동으로 구성(configure)한다
 rem    3) Release 로 증분 빌드한다   (이미 최신이면 몇 초 안에 끝남)
-rem    4) 메뉴 프로그램(pa_menu.exe)을 실행한다 (테스트 1개 = 실행 파일 1개, 메뉴는 그것들을 골라 실행)
+rem    4) 테스트 프로그램(pa_tests.exe)을 실행한다
 rem
 rem  사용법
 rem    run_tests.bat              대화형 메뉴(인자 없음): 모든 테스트를 설명과 함께 보여 주고 번호를 골라 실행
@@ -15,23 +15,23 @@ rem    run_tests.bat unit         suite 하나 실행   (unit / hrtf / preproces
 rem    run_tests.bat list         테스트 목록(설명 포함)만 출력
 rem    run_tests.bat rebuild      build 폴더를 지우고 처음부터 다시 구성 + 빌드 (실행은 안 함)
 rem    run_tests.bat build        빌드만 하고 종료
-rem    run_tests.bat --suite hrtf --filter right_ear     그 밖의 인자는 pa_menu.exe 에 그대로 전달
+rem    run_tests.bat --suite hrtf --filter right_ear     그 밖의 인자는 pa_tests.exe 에 그대로 전달
 rem
 rem  환경변수
-rem    PA_NO_BUILD=1              빌드 단계를 건너뛰고 기존 pa_menu.exe 를 바로 실행
+rem    PA_NO_BUILD=1              빌드 단계를 건너뛰고 기존 pa_tests.exe 를 바로 실행
 rem    PA_NO_PAUSE=1              종료 시 "아무 키나 누르세요" 대기를 끔 (스크립트/CI 용)
 rem
 rem  종료 코드: 테스트 FAIL 이 있으면 1, 빌드/환경 문제는 3 이상, 정상은 0
 rem ============================================================================
 setlocal EnableExtensions
 
-rem 한글이 깨지지 않도록 콘솔 코드페이지를 UTF-8 로 (pa_menu.exe 도 UTF-8 로 출력함)
+rem 한글이 깨지지 않도록 콘솔 코드페이지를 UTF-8 로 (pa_tests.exe 도 UTF-8 로 출력함)
 chcp 65001 >nul
 
 set "ROOT=%~dp0"
 if "%ROOT:~-1%"=="\" set "ROOT=%ROOT:~0,-1%"
 set "BUILD=%ROOT%\build"
-set "EXE=%BUILD%\bin\Release\pa_menu.exe"
+set "EXE=%BUILD%\bin\Release\pa_tests.exe"
 
 rem --- 첫 번째 인자에 따라 동작 결정 ---------------------------------------------
 set "ARG1=%~1"
@@ -123,7 +123,7 @@ echo   run_tests.bat unit         suite 실행: unit / hrtf / preprocessor / run
 echo   run_tests.bat list         테스트 목록^(설명 포함^)만 출력
 echo   run_tests.bat build        빌드만
 echo   run_tests.bat rebuild      build 폴더 삭제 후 처음부터 구성 + 빌드
-echo   run_tests.bat ^<기타 인자^>  pa_menu.exe 에 그대로 전달 ^(예: --suite hrtf --filter right_ear^)
+echo   run_tests.bat ^<기타 인자^>  pa_tests.exe 에 그대로 전달 ^(예: --suite hrtf --filter right_ear^)
 echo.
 echo   환경변수 PA_NO_BUILD=1 : 빌드 건너뛰기
 set "RC=0"

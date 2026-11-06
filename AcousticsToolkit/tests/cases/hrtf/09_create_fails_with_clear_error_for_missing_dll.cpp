@@ -6,12 +6,12 @@
 // 이 테스트는 실제 DLL 이 필요 없다.
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "pa/HrtfEngine.h"
 
-int main(int argc, char** argv)
+int Test_hrtf_09_create_fails_with_clear_error_for_missing_dll()
 {
-    PA_BEGIN("hrtf.09_create_fails_with_clear_error_for_missing_dll", "없는 DLL 오류 메시지",
-             "DLL 경로가 틀리면 nullptr + 'LoadLibrary' 사유를 반환하는지 확인.");
+    PA_BEGIN("hrtf.09_create_fails_with_clear_error_for_missing_dll");
 
     // [1] 존재하지 않는 경로로 생성 시도
     PA_STEP("존재하지 않는 DLL 경로로 Create 호출");

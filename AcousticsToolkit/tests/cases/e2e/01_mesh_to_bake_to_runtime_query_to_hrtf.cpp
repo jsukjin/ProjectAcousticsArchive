@@ -18,6 +18,7 @@
 #include <filesystem>
 
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "Helpers.h"
 #include "TestPaths.h"
 #include "pa/AcousticsBridge.h"
@@ -55,11 +56,9 @@ static long long MsSince(std::chrono::steady_clock::time_point start)
 }
 
 // ---- 테스트 본문 -------------------------------------------------------------------------------
-int main(int argc, char** argv)
+int Test_e2e_01_mesh_to_bake_to_runtime_query_to_hrtf()
 {
-    PA_BEGIN("e2e.01_mesh_to_bake_to_runtime_query_to_hrtf", "전체 파이프라인: 메시 -> 베이크 -> 쿼리 -> HRTF",
-             "방 메시 생성 -> 복셀/프로브(Preprocessor) -> 로컬 베이크(LocalProcessor, ACE 생성) -> ACE 로드/쿼리(Runtime) -> "
-             "HRTF 렌더까지 실제 바이너리로 수행. 단계마다 로그를 출력한다 (수 초~수 분).");
+    PA_BEGIN("e2e.01_mesh_to_bake_to_runtime_query_to_hrtf");
 
     // ---- 사전 조건: 필요한 바이너리가 없으면 SKIP -----------------------------------------------
     if (!fs::exists(pa_test_paths::kPreprocessorDll)) PA_SKIP("Triton.Preprocessor.dll 이 없음");

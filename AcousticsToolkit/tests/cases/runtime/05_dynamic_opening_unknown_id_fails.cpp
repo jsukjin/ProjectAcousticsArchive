@@ -6,12 +6,12 @@
 // 등록한 적 없는 ID(999)를 갱신/제거하려 하면 false 를 반환해야 한다 (헤더: "ID 가 없으면 실패").
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "pa/RuntimeAcoustics.h"
 
-int main(int argc, char** argv)
+int Test_runtime_05_dynamic_opening_unknown_id_fails()
 {
-    PA_BEGIN("runtime.05_dynamic_opening_unknown_id_fails", "없는 동적 개구부 갱신/제거 실패",
-             "등록되지 않은 개구부 ID 를 갱신/제거하면 false 인지 확인.");
+    PA_BEGIN("runtime.05_dynamic_opening_unknown_id_fails");
 
     PA_STEP("RuntimeAcoustics 생성");
     pa::RuntimeAcoustics runtime;

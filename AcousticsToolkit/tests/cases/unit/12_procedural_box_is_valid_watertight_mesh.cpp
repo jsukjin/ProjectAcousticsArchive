@@ -7,12 +7,12 @@
 //   - 모든 모서리가 정확히 2개 삼각형에 공유됨 (= 구멍 없는 닫힌 메시, watertight)
 // =============================================================================
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "pa/ProceduralScene.h"
 
-int main(int argc, char** argv)
+int Test_unit_12_procedural_box_is_valid_watertight_mesh()
 {
-    PA_BEGIN("unit.12_procedural_box_is_valid_watertight_mesh", "절차적 박스 메시 유효성",
-             "8정점/12삼각형, 인덱스 범위, 모든 모서리가 정확히 2개 삼각형에 공유되는지(닫힌 메시) 확인.");
+    PA_BEGIN("unit.12_procedural_box_is_valid_watertight_mesh");
 
     // [1] 4 x 3 x 2.5 m 박스 생성 (재질 코드는 기본 벽 코드)
     PA_STEP("MakeBox 호출");

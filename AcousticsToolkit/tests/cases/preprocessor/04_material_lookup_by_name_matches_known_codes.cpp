@@ -9,14 +9,14 @@
 #include <filesystem>
 
 #include "Check.h"
+#include "TestList.h" // 이 함수의 선언 (main.cpp 의 switch 가 호출한다)
 #include "Helpers.h"
 #include "TestPaths.h"
 #include "pa/PreprocessorClient.h"
 
-int main(int argc, char** argv)
+int Test_preprocessor_04_material_lookup_by_name_matches_known_codes()
 {
-    PA_BEGIN("preprocessor.04_material_lookup_by_name_matches_known_codes", "재질 이름 <-> 코드 일관성",
-             "이름으로 조회한 코드와 목록의 코드가 같고 흡음률이 보존되는지, 없는 이름은 실패하는지 확인.");
+    PA_BEGIN("preprocessor.04_material_lookup_by_name_matches_known_codes");
 
     if (!std::filesystem::exists(pa_test_paths::kPreprocessorDll)) PA_SKIP("Triton.Preprocessor.dll 이 없음");
 
