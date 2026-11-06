@@ -49,6 +49,7 @@ namespace
 
 PA_TEST(hrtf, binaural_engine_has_two_channels_left_right)
 {
+    PA_STEP("HrtfDsp.dll 로드 + 바이노럴 엔진 생성");
     auto engine = MakeEngine(1, HrtfEngineType_Binaural);
     PA_CHECK_EQ(engine->OutputChannelCount(), 2u);
 
@@ -56,6 +57,8 @@ PA_TEST(hrtf, binaural_engine_has_two_channels_left_right)
     std::vector<VectorF> dirs;
     PA_CHECK(engine->GetOutputChannelDirections(dirs));
     PA_CHECK_EQ(dirs.size(), 2u);
+    PA_LOG("출력 채널 " << engine->OutputChannelCount() << "개: 방향 L(" << dirs[0].x << "," << dirs[0].y << "," << dirs[0].z << ") R("
+                       << dirs[1].x << "," << dirs[1].y << "," << dirs[1].z << ")");
     PA_CHECK(dirs[0].x < 0.0f);
     PA_CHECK(dirs[1].x > 0.0f);
 }
@@ -79,6 +82,7 @@ PA_TEST(hrtf, source_on_right_is_louder_in_right_ear)
 
     const double left = ChannelEnergy(out, 2, 0);
     const double right = ChannelEnergy(out, 2, 1);
+    PA_LOG("8프레임 처리 후 마지막 프레임 에너지: 왼쪽 귀 " << left << ", 오른쪽 귀 " << right << " (오른쪽/왼쪽 = " << right / left << "배)");
     PA_CHECK_MSG(right > 0.0, "출력이 완전 무음");
     // ILD(양이 레벨 차): 오른쪽 소스는 오른쪽 귀가 더 커야 한다
     PA_CHECK_MSG(right > left, "right=" + std::to_string(right) + " left=" + std::to_string(left));
@@ -94,6 +98,7 @@ PA_TEST(hrtf, mirrored_source_swaps_ears)
     for (int frame = 0; frame < 8; ++frame)
         out = engine->Process({Sine(1000.0f, 0.5f, kFrames, frame * kFrames)});
     PA_CHECK(!out.empty());
+    PA_LOG("왼쪽 소스: 왼쪽 귀 " << ChannelEnergy(out, 2, 0) << ", 오른쪽 귀 " << ChannelEnergy(out, 2, 1));
     // 왼쪽 소스는 왼쪽 귀가 더 커야 한다
     PA_CHECK(ChannelEnergy(out, 2, 0) > ChannelEnergy(out, 2, 1));
 }
@@ -147,6 +152,7 @@ PA_TEST(hrtf, panner_process_honors_output_format)
         PA_CHECK_EQ(out.size(), size_t(kFrames) * c.channels);
         double total = 0;
         for (float v : out) total += double(v) * v;
+        PA_LOG("포맷 " << int(c.format) << ": " << c.channels << "채널, 반환 샘플 " << produced << "개, 에너지 " << total);
         PA_CHECK_MSG(total > 0.0, "포맷 " + std::to_string(int(c.format)) + " 출력이 무음");
     }
 }

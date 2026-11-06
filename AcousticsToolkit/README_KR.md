@@ -107,7 +107,8 @@
 
 ```
 AcousticsToolkit/
-├─ CMakeLists.txt                 빌드 정의 (pa_toolkit / pa_runtime / pa_tests, DLL 복사, CTest 등록)
+├─ run_tests.bat                  빌드 + 실행 도우미 (인자 없음 = 대화형 테스트 메뉴)
+├─ CMakeLists.txt                 빌드 정의 (pa_toolkit / pa_runtime / pa_tests, DLL 복사, CTest 등록, VS 솔루션 폴더/헤더 표시)
 ├─ include/pa/
 │  ├─ DynamicLibrary.h            LoadLibrary RAII (DLL 없을 때 SKIP 가능하게)
 │  ├─ HrtfEngine.h                HrtfDsp.dll 래퍼 (엔진 RAII, 소스 관리, Process)
@@ -119,10 +120,16 @@ AcousticsToolkit/
 │  └─ AcousticsBridge.h           TritonAcousticParameters → HrtfAcousticParameters 변환 (참조 구현)
 ├─ src/                           위 헤더들의 구현 (.cpp)
 └─ tests/
-   ├─ TestFramework.h / main.cpp  의존성 없는 미니 테스트 프레임워크 + 러너
+   ├─ main.cpp                    진입점: 인자 해석 -> 메뉴/CLI 실행 (디버거 브레이크포인트 시작점)
+   ├─ Menu.h/.cpp                 대화형 메뉴 (번호/범위/suite 선택, 목록, 도움말)
+   ├─ TestRunner.h/.cpp           테스트 정렬/선택/실행/결과 요약 출력 (메뉴와 CLI 공용)
+   ├─ TestCatalog.h/.cpp          모든 테스트/suite 의 한국어 설명 + 필요한 파일 목록 (메뉴에 표시되는 내용)
+   ├─ TestFramework.h             PA_TEST / PA_CHECK / PA_STEP / PA_LOG 매크로 (의존성 없는 미니 프레임워크)
+   ├─ CrashTrace.h                네이티브 크래시를 모듈+RVA 로 출력 (--crash-trace)
    ├─ test_unit_layout.cpp        [unit] 구조체 바이너리 레이아웃(ABI) 고정
    ├─ test_unit_math.cpp          [unit] 좌표 변환 / 브릿지 / 절차적 메시
    ├─ test_unit_bake_cmdline.cpp  [unit] 명령줄 인용/검증/ACE·ENC 파일 처리
+   ├─ test_unit_catalog.cpp       [unit] 카탈로그(설명 목록)가 실제 테스트와 항상 일치하는지 검사
    ├─ test_hrtf.cpp               [hrtf] 실제 HrtfDsp.dll 동작
    ├─ test_preprocessor.cpp       [preprocessor] 실제 Triton.Preprocessor.dll (재질/메시/오류 경로)
    ├─ test_runtime.cpp            [runtime] Triton.Runtime.lib (Init/TearDown, 실패 경로, 리버브 가중치)
@@ -138,17 +145,67 @@ AcousticsToolkit/
 
 ## 4. 빌드와 테스트
 
+### 가장 쉬운 방법: `run_tests.bat`
+
+```
+AcousticsToolkit\run_tests.bat            대화형 메뉴 (더블클릭해도 됨)
+AcousticsToolkit\run_tests.bat all        e2e 제외 전부 실행
+AcousticsToolkit\run_tests.bat unit       suite 하나 실행 (unit / hrtf / preprocessor / runtime / e2e)
+AcousticsToolkit\run_tests.bat list       테스트 목록(설명 포함)만 출력
+AcousticsToolkit\run_tests.bat build      빌드만
+AcousticsToolkit\run_tests.bat rebuild    build 폴더를 지우고 처음부터 구성 + 빌드
+AcousticsToolkit\run_tests.bat --suite hrtf --filter right_ear    그 밖의 인자는 pa_tests.exe 에 그대로 전달
+```
+
+bat 는 cmake 를 찾고(없으면 VS 포함 cmake 탐색) → build 폴더가 없으면 구성 → Release 증분 빌드 → 실행까지 자동으로 합니다.
+환경변수 `PA_NO_BUILD=1`(빌드 건너뛰기), `PA_NO_PAUSE=1`(종료 시 대기 안 함, 스크립트용)을 지원합니다.
+
+### 대화형 메뉴
+
+메뉴를 열면 **가능한 모든 테스트가 번호 + 제목 + 검증 내용과 함께** 표시되고, suite 별로 필요한 파일(`HrtfDsp.dll` 등)이 있는지 `[OK]/[없음]`으로 보입니다.
+번호를 골라 실행하면 테스트마다 헤더(제목/검증 내용) → **단계 로그(`- 단계`, `| 세부 값`)** → 결과(PASS/FAIL/SKIP + 시간) 순으로 출력됩니다.
+
+| 입력 | 의미 |
+|---|---|
+| `3` / `3 5 7` | 해당 번호 테스트 (여러 개 가능) |
+| `22-26` | 범위 |
+| `hrtf` | suite 전체 (`unit` `hrtf` `preprocessor` `runtime` `e2e`) |
+| `all` | e2e 를 제외한 전부 |
+| `l` / `h` / `q` | 목록 다시 보기 / 도움말 / 종료 |
+
+```
+선택> 22
+>> [1/1] hrtf.source_on_right_is_louder_in_right_ear
+   오른쪽 소스는 오른쪽 귀가 더 큼
+   검증: 오른쪽 2m 의 1kHz 사인파를 8프레임 처리해 양 귀 에너지를 비교 (양이 레벨 차, ILD).
+      | 8프레임 처리 후 마지막 프레임 에너지: 왼쪽 귀 10.4897, 오른쪽 귀 66.855 (오른쪽/왼쪽 = 6.37339배)
+   => PASS  (151 ms)
+```
+
+* **새 테스트를 추가할 때**: `PA_TEST(suite, name)` 를 쓰고 `tests/TestCatalog.cpp` 에 설명 한 줄을 추가하세요. 빠뜨리면 `unit.catalog_covers_every_test` 가 실패합니다.
+* **테스트 안에서 로그 남기기**: `PA_STEP("단계 제목")`, `PA_LOG("값 = " << x)` (한 줄마다 즉시 flush 되므로, 크래시가 나도 마지막 로그가 위치를 알려 줍니다).
+* 인자 없이 실행하면: 콘솔이면 메뉴, 입력이 파이프/파일/NUL 이면(CTest 등) e2e 를 제외한 전부 바로 실행합니다. `--menu` 는 항상 메뉴.
+
+### 수동 빌드/실행
+
 ```powershell
 # VS2022 x64. Release 필수 (동봉된 .lib 가 /MD 로 빌드됨)
 cmake -S AcousticsToolkit -B AcousticsToolkit/build -G "Visual Studio 17 2022" -A x64
 cmake --build AcousticsToolkit/build --config Release
 
-AcousticsToolkit\build\Release\pa_tests.exe --list            # 테스트 목록
-AcousticsToolkit\build\Release\pa_tests.exe                   # e2e 제외 전부
+AcousticsToolkit\build\Release\pa_tests.exe --list            # 테스트 목록(설명 포함)
+AcousticsToolkit\build\Release\pa_tests.exe --menu            # 대화형 메뉴
+AcousticsToolkit\build\Release\pa_tests.exe                   # 콘솔이면 메뉴, 아니면 e2e 제외 전부
 AcousticsToolkit\build\Release\pa_tests.exe --suite unit      # 바이너리 불필요, 즉시
-AcousticsToolkit\build\Release\pa_tests.exe --suite e2e       # 실제 베이크 (수 분)
+AcousticsToolkit\build\Release\pa_tests.exe --suite e2e       # 실제 베이크 (수 초~수 분)
 ctest --test-dir AcousticsToolkit/build -C Release --output-on-failure
 ```
+
+### Visual Studio 에서 열기
+
+`AcousticsToolkit\build\AcousticsToolkit.sln` 을 열면 `pa_tests` 가 시작 프로젝트로 지정되어 있습니다. 솔루션 탐색기에는 소스뿐 아니라
+**우리 헤더(`include/pa`, `tests`)와 Triton 공개 헤더(`ThirdParty/Include`)도 폴더 구조대로 표시**됩니다. F5 의 명령 인수(프로젝트 속성 → 디버깅)에
+`--menu` 또는 `--suite hrtf --filter source_on` 같은 값을 넣어 쓰세요. 디버거 시작점은 `tests/main.cpp` 의 `main()` 입니다.
 
 | suite | 필요한 것 | 무엇을 검증하나 |
 |---|---|---|
@@ -160,7 +217,7 @@ ctest --test-dir AcousticsToolkit/build -C Release --output-on-failure
 
 ### 실행 결과 (이 PC: Windows 10, VS2022 MSVC 19.44, Release)
 
-* 기본 suite **45개 전부 PASS**, e2e **1개 PASS** (CTest 5/5).
+* 기본 suite **47개 전부 PASS**, e2e **1개 PASS** (총 48개, CTest 5/5).
 * e2e 실측 (8×6×3 m 방, 150 Hz, 프로브 1개): 전처리 13 ms → 로컬 베이크 약 5.6 s (종료 코드 0, `.ace` 생성) →
   런타임 로드(`probes loaded=1 failed=0`) → 쿼리 `path=5.55 m (직선 5.15 m), dry +9.67 dB, wet +8.67 dB, T60 3.18 s, spread 251°` → HRTF 출력 비무음.
   (설정이 극단적으로 작은 테스트용이라 이 수치는 **물리적 정확도의 근거가 아니라 "파이프라인이 끝까지 동작함"의 근거**입니다.)

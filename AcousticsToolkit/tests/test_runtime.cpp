@@ -68,6 +68,7 @@ PA_TEST(runtime, reverb_send_weights_blend_adjacent_buses)
     std::vector<float> w;
     PA_CHECK(RuntimeAcoustics::ReverbSendWeights(1.5f, buses, w));
     PA_CHECK_EQ(w.size(), 4u);
+    PA_LOG("목표 T60=1.5s, 버스 {0.5,1,2,4}s -> 가중치 {" << w[0] << ", " << w[1] << ", " << w[2] << ", " << w[3] << "}");
 
     for (float x : w) PA_CHECK(x >= 0.0f);                 // 음수 가중치 없음
     PA_CHECK(w[1] > 0.0f && w[2] > 0.0f);                  // 인접 두 버스가 사용됨
@@ -80,6 +81,7 @@ PA_TEST(runtime, reverb_send_weights_exact_match_selects_single_bus)
     const std::vector<float> buses{0.5f, 1.0f, 2.0f, 4.0f};
     std::vector<float> w;
     PA_CHECK(RuntimeAcoustics::ReverbSendWeights(2.0f, buses, w));
+    PA_LOG("목표 T60=2.0s -> 가중치 {" << w[0] << ", " << w[1] << ", " << w[2] << ", " << w[3] << "}");
     // T60 이 정확히 2.0s 이면 2.0s 버스가 가장 커야 한다
     const size_t best = std::max_element(w.begin(), w.end()) - w.begin();
     PA_CHECK_EQ(best, 2u);

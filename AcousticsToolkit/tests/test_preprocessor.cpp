@@ -59,11 +59,13 @@ PA_TEST(preprocessor, material_library_roundtrip)
 
     int count = 0;
     PA_CHECK(c->GetMaterialCount(lib, count));
+    PA_LOG("재질 개수 " << count);
     PA_CHECK_EQ(count, 3);
 
     std::vector<pa::MaterialEntry> known;
     PA_CHECK(c->GetKnownMaterials(lib, known));
     PA_CHECK_EQ(known.size(), 3u);
+    for (const auto& e : known) PA_LOG("재질 '" << e.material.Name << "'  코드 " << e.code << "  흡음률 " << e.material.Absorptivity);
     // 코드는 재질마다 유일해야 한다
     PA_CHECK(known[0].code != known[1].code && known[1].code != known[2].code && known[0].code != known[2].code);
 }
@@ -102,6 +104,7 @@ PA_TEST(preprocessor, mesh_accepts_geometry_and_navigation)
     const auto floorQuad = pa::MakeHorizontalQuad(0.2, 0.2, 5.8, 4.8, 0.05, TRITON_DEFAULT_WALL_CODE);
     PA_CHECK(c->AddMesh(mesh, floorQuad, MeshTypeNavigation));
     PA_CHECK(c->AddPinnedProbe(mesh, ATKVectorD(3, 2.5, 1.5)));
+    PA_LOG("지오메트리 12삼각형 + 내비게이션 2삼각형 + 핀 프로브 1개 추가 성공");
 }
 
 PA_TEST(preprocessor, error_paths_return_failure_not_crash)
@@ -160,22 +163,21 @@ namespace
         std::filesystem::create_directories(dir);
         std::strncpy(op.WorkingDir, std::filesystem::absolute(dir).string().c_str(), TRITON_MAX_PATH_LENGTH - 1);
 
+        // PA_STEP 은 한 줄마다 즉시 flush 하므로, 만약 아래 어딘가에서 크래시가 나도
+        // "마지막으로 출력된 단계" 가 크래시 직전 위치를 알려 준다.
+        PA_STEP("SimulationConfiguration_Create 호출");
         auto cfg = c->CreateSimulationConfig(mesh, sim, op, lib);
-        // 크래시 위치를 특정할 수 있도록 단계마다 flush (stdout 이 파일이면 완전 버퍼링되어 마지막 줄이 사라진다)
-        std::printf("  (create returned %s)\n", cfg ? "handle" : "null");
-        std::fflush(stdout);
+        PA_STEP(std::string("호출 결과: ") + (cfg ? "핸들 반환(성공)" : "nullptr(실패)") + "  (기대: " +
+                (expectFailure ? "실패" : "성공") + ")");
         PA_CHECK((cfg == nullptr) == expectFailure); // 실패 씬은 nullptr, 성공 씬은 핸들
         cfg.reset();
-        std::printf("  (cfg 해제 통과)\n");
-        std::fflush(stdout);
+        PA_STEP("설정 핸들 해제 완료");
         mesh.reset();
-        std::printf("  (mesh 해제 통과)\n");
-        std::fflush(stdout);
+        PA_STEP("메시 핸들 해제 완료");
         lib.reset();
-        std::printf("  (lib 해제 통과)\n");
-        std::fflush(stdout);
+        PA_STEP("재질 라이브러리 해제 완료 -> 이제 DLL 언로드(과거에 OpenMP 크래시가 나던 구간)");
         // [실험용] 언로드(= 이 함수가 끝나며 c 가 소멸해 FreeLibrary) 직전에 지연을 넣는다.
-        // OpenMP 워커의 스핀 구간(vcomp 의 100ms) 안/밖에서 동작이 달라지는지 보려는 목적.
+        // 환경변수 PA_TEST_DELAY_MS=<ms>. OpenMP 워커의 스핀 구간(vcomp 의 ~100ms) 안/밖 동작 비교용.
         if (const char* d = std::getenv("PA_TEST_DELAY_MS")) ::Sleep(static_cast<DWORD>(std::atoi(d)));
     }
 
